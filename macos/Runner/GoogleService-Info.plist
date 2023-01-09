@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>145299167499-vsiu1gphhl428rs8u5c7gq1f25f7pttj.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.145299167499-vsiu1gphhl428rs8u5c7gq1f25f7pttj</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBn7rowDuz6LOmS8-sp7SYAmV93m7mOzAw</string>
+	<key>GCM_SENDER_ID</key>
+	<string>145299167499</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.flutterJukeboxDemo4.RunnerTests</string>
+	<key>PROJECT_ID</key>
+	<string>jukeboxd-demo-3</string>
+	<key>STORAGE_BUCKET</key>
+	<string>jukeboxd-demo-3.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:145299167499:ios:81b3d5c422f9b7ead1ea0e</string>
+	<key>DATABASE_URL</key>
+	<string>https://jukeboxd-demo-3-default-rtdb.firebaseio.com</string>
+</dict>
+</plist>
