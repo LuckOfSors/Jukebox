@@ -5,10 +5,14 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:adobe_xd/pinned.dart';
+import 'package:flutter_first_demo/FeedPage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+
+import 'ProfilePage.dart';
+import 'SearchPage.dart';
 
 final GoogleSignIn googleSignIn = GoogleSignIn();
 
@@ -18,41 +22,116 @@ class SignUpPage extends StatefulWidget {
 }
 
 class HomeState extends State<SignUpPage> {
-  bool isAlrUser = false;
+  bool isAuth = false;
+  late PageController pageController;
+  int pageIndex = 0;
 
   @override
   void initState() {
     super.initState();
+    pageController = PageController(
+      initialPage: 0,
+    );
     googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
-      if (account != null) {
-        print('User signed in: $account');
-        setState(() {
-          isAlrUser = true;
-        });
-      } else {
-        setState(() {
-          isAlrUser = false;
-        });
-      }
+      handleSignIn(account);
+    }, onError: (err) {
+      print('Error signing in: $err');
+    });
+    // Reauthenticate user when app is opened
+    googleSignIn.signInSilently(suppressErrors: false).then((account) {
+      handleSignIn(account);
+    }).catchError((err) {
+      print('Error signing in: $err');
     });
   }
 
-  login() async {
-    GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
-    GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
-
-    AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth?.accessToken, idToken: googleAuth?.idToken);
-
-    UserCredential userCredential =
-        await FirebaseAuth.instance.signInWithCredential(credential);
-
-    print(userCredential.user?.displayName);
+  handleSignIn(GoogleSignInAccount? account) {
+    if (account != null) {
+      print('User signed in: $account');
+      setState(() {
+        isAuth = true;
+      });
+    } else {
+      setState(() {
+        isAuth = false;
+      });
+    }
   }
 
-  Widget buildAuthScreen() {
-    return Text('Authenticated');
+  @override
+  void dispose() {
+    pageController.dispose();
+    super.dispose();
+  }
+
+  login() async {
+    // GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+    // GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+
+    // AuthCredential credential = GoogleAuthProvider.credential(
+    //     accessToken: googleAuth?.accessToken, idToken: googleAuth?.idToken);
+
+    // UserCredential userCredential =
+    //     await FirebaseAuth.instance.signInWithCredential(credential);
+
+    // print(userCredential.user?.displayName);
+    googleSignIn.signIn();
+  }
+
+  logout() {
+    googleSignIn.signOut();
+  }
+
+  onPageChanged(int pageIndex) {
+    setState(() {
+      this.pageIndex = pageIndex;
+    });
+  }
+
+  onTapNav(int pageIndex) {
+    pageController.animateToPage(
+      duration: Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+      pageIndex,
+    );
+  }
+
+  Scaffold buildAuthScreen() {
+    return Scaffold(
+      body: PageView(
+        // ignore: sort_child_properties_last
+        children: <Widget>[
+          FeedPage(),
+          SearchPage(),
+          ProfilePage(),
+        ],
+        controller: pageController,
+        onPageChanged: onPageChanged,
+        physics: NeverScrollableScrollPhysics(),
+      ),
+      bottomNavigationBar: CupertinoTabBar(
+        currentIndex: pageIndex,
+        onTap: onTapNav,
+        activeColor: Colors.purple,
+        // ignore: prefer_const_literals_to_create_immutables
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.feed),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+          ),
+        ],
+      ),
+    );
+    // return ElevatedButton(
+    //   child: Text('Logout'),
+    //   onPressed: logout,
+    // );
   }
 
   Scaffold buildUnAuthScreen() {
@@ -149,6 +228,6 @@ class HomeState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
-    return isAlrUser ? buildAuthScreen() : buildUnAuthScreen();
+    return isAuth ? buildAuthScreen() : buildUnAuthScreen();
   }
 }

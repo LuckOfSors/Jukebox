@@ -1,46 +1,21 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: prefer_const_constructors
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:device_preview/device_preview.dart';
-import 'package:flutter_first_demo/RegistrationPage.dart';
 import 'AuthenticationService.dart';
-import 'Dashboard.dart';
-import 'package:firebase_core/firebase_core.dart';
 
-import 'SpotifyAuth.dart';
+class RegistrationScreen extends StatefulWidget {
+  const RegistrationScreen({super.key});
 
-void main() {
-  // if (defaultTargetPlatform == TargetPlatform.android) {
-  //   print("you");
-  // } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-  //   print("are");
-  // } else if (defaultTargetPlatform == TargetPlatform.windows) {
-  //   print("retarded");
-  // }
-
-  WidgetsFlutterBinding.ensureInitialized();
-  Firebase.initializeApp();
-
-  runApp(
-    DevicePreview(
-        enabled: true,
-        tools: const [...DevicePreview.defaultTools],
-        builder: ((context) => MyApp())),
-  );
-}
-
-class LoginScreen extends StatefulWidget {
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  _RegistrationScreenState createState() => _RegistrationScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegistrationScreenState extends State<RegistrationScreen> {
   final _key = GlobalKey<FormState>();
 
   final AuthenticationService _auth = AuthenticationService();
 
+  TextEditingController _nameController = TextEditingController();
   TextEditingController _emailContoller = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
 
@@ -48,7 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        color: Colors.deepPurple,
+        color: Colors.deepPurpleAccent,
         child: Center(
           child: Form(
             key: _key,
@@ -56,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Login',
+                  'Register',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 30,
@@ -67,6 +42,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   padding: const EdgeInsets.all(32.0),
                   child: Column(
                     children: [
+                      TextFormField(
+                        controller: _nameController,
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return 'Name cannot be empty';
+                          } else
+                            return null;
+                        },
+                        decoration: InputDecoration(
+                            labelText: 'Name',
+                            labelStyle: TextStyle(
+                              color: Colors.white,
+                            )),
+                        style: TextStyle(color: Colors.white),
+                      ),
                       SizedBox(height: 30),
                       TextFormField(
                         controller: _emailContoller,
@@ -98,37 +88,30 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: Colors.white,
                         ),
                       ),
-                      SizedBox(height: 5),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 20.0),
-                        child: ElevatedButton(
-                          child: Text('Not registerd? Sign up'),
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              CupertinoPageRoute(
-                                fullscreenDialog: true,
-                                builder: (context) => RegistrationScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
                       SizedBox(height: 30),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           ElevatedButton(
-                            child: const Text('Login',
-                                style: TextStyle(color: Colors.blue)),
+                            child: Text('Sign Up'),
                             onPressed: () {
                               if (_key.currentState!.validate()) {
-                                signInUser();
+                                createUser();
                               }
                             },
                             style: ElevatedButton.styleFrom(
-                              primary: Colors.white,
+                              primary: Colors.blue,
                             ),
                           ),
+                          ElevatedButton(
+                            child: Text('Back to login'),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              primary: Colors.blue,
+                            ),
+                          )
                         ],
                       ),
                     ],
@@ -142,38 +125,17 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void signInUser() async {
-    dynamic authResult =
-        await _auth.loginUser(_emailContoller.text, _passwordController.text);
-    if (authResult == null) {
-      print('Sign in error. could not be able to login');
+  void createUser() async {
+    dynamic result = await _auth.createNewUser(
+        _nameController.text, _emailContoller.text, _passwordController.text);
+    if (result == null) {
+      print('Email is not valid');
     } else {
-      _emailContoller.clear();
+      print(result.toString());
+      _nameController.clear();
       _passwordController.clear();
-      print('signin succesufl');
-      Navigator.pushNamed(context, '/dashboard');
+      _emailContoller.clear();
+      Navigator.pop(context);
     }
-  }
-}
-
-class MyApp extends StatelessWidget {
-  MyApp({super.key});
-
-  final Future<FirebaseApp> _intialization = Firebase.initializeApp();
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      darkTheme: ThemeData(brightness: Brightness.dark),
-      initialRoute: '/login',
-      routes: {
-        '/login': (context) => LoginScreen(),
-        '/register': (context) => RegistrationScreen(),
-        '/dashboard': (context) => DashboardScreen(),
-        '/spotifyAuth': (context) => SpotifyAuthScreen(),
-      },
-    );
   }
 }
